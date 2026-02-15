@@ -1,9 +1,11 @@
 # main.py
-from fastapi import FastAPI, File, UploadFile, Form
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 import cv2
 from colour import extract_dominant_colours
+from typing import Optional
+import traceback
 
 app = FastAPI(title="Dominant Colour API")
 
@@ -20,8 +22,42 @@ app.add_middleware(
 async def extract(
     file: UploadFile = File(...),
     mode: str = Form("auto"),  # "auto" or "manual"
-    k: int = Form(5)
+    k: Optional[str] = Form(None)
 ):
+    try:
+        # kをパース（空文字やnoneはnone扱い）
+        k_int: Optional[int] = None
+        if k is not None:
+            k = k.strip()
+            if k != "":
+                try: 
+                    k_int = int(k)
+                except ValueError:
+                    raise HTTPException(status_code=422, detail="k must be an integer")
+        if mode == "manual" and k_int is None:
+            raise HTTPException(status_code=400, detail="k must be provided in manual mode")
+        
+        image = await file.read()
+        np_img = np.frombuffer(image, np.uint8)
+        img_bgr = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
+        if img_bgr is None:
+            raise HTTPException(status_code=400, detail="Invalid decoding failed")
+        
+        result = extract_dominant_colours(
+            img_bgr=img_bgr,
+            mode=mode,
+            k=(k_int if k_int is not None else 5),  # デフォルトは5
+        )
+        return result
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print("EXTRACT FAILED:", repr(e))
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Internal Server Error (see server logs for details)")
+ 
+""" 
     # 画像を numpy 配列に変換
     contents = await file.read()
     np_img = np.frombuffer(contents, np.uint8)
@@ -37,3 +73,4 @@ async def extract(
     )
 
     return result
+"""
