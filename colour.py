@@ -9,7 +9,7 @@ def optimal_k(data, kmin=2, kmax=10):
     sse = []
     ks = list(range(kmin, kmax + 1))
     for k in ks:
-        km = KMeans(n_clusters=k, random_state=0, n_init="auto")
+        km = KMeans(n_clusters=k, random_state=0, n_init=10)
         km.fit(data)
         sse.append(km.inertia_)
 
@@ -45,7 +45,7 @@ def extract_dominant_colours(
         k = optimal_k(pixels, kmin=kmin, kmax=kmax)
 
     # KMeans
-    km = KMeans(n_clusters=k, random_state=0, n_init="auto")
+    km = KMeans(n_clusters=k, random_state=0, n_init=10)
     labels = km.fit_predict(pixels)
     centers = km.cluster_centers_.astype(np.uint8)
 
