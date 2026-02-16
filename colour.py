@@ -14,7 +14,9 @@ def optimal_k(data, kmin=2, kmax=10):
         sse.append(km.inertia_)
 
     kl = KneeLocator(ks, sse, curve="convex", direction="decreasing")
-    return kl.knee if kl.knee else kmin
+    if kl.knee is not None:
+        return int(kl.knee)
+    return int(kmin)
 
 
 def image_to_base64(img):
@@ -78,6 +80,6 @@ def extract_dominant_colours(
     results.sort(key=lambda x: x["ratio"], reverse=True)
 
     return {
-        "k": k,
+        "k": int(k),
         "colours": results
     }
