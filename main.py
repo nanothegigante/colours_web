@@ -1,6 +1,8 @@
 # main.py
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 import numpy as np
 import cv2
 from colour import extract_dominant_colours
@@ -48,7 +50,16 @@ async def extract(
             mode=mode,
             k=(k_int if k_int is not None else 5),  # デフォルトは5
         )
-        return result
+
+        content = jsonable_encoder(
+            result,
+            custom_encoder={
+                np.integer: int,
+                np.floating: float,
+                np.ndarray: lambda x: x.tolist()
+            },
+        )
+        return JSONResponse(content=content)
     
     except HTTPException:
         raise
