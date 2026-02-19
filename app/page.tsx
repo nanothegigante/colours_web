@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 
 type Mode = "auto" | "manual";
-type ColourItem = { hex: string; ratio: number; mask_image: string };
+type ColourItem = { id: number; hex: string; ratio: number; mask_image?: string };
 type ApiResponse = { k: number; colours: ColourItem[] };
 
 function clampK(n: number) {
@@ -26,54 +26,30 @@ export default function Page() {
     return URL.createObjectURL(file);
   }, [file]);
 
+  async function callExtract(file: File, mode: Mode, k: number, includeMasks: boolean) {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("mode", mode);
+    if (mode === "manual") fd.append("k", String(k));
+    fd.append("include_masks", includeMasks ? "true" : "false");
+
+    const res = await fetch(`${API_BASE}/extract`, { method: "POST", body: fd });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`API error ${res.status}: ${text}`);
+    }
+    return (await res.json()) as ApiResponse;
+  }
+
   async function onSubmit() {
     setError("");
     setData(null);
-
-    if (!API_BASE) {
-      setError("API base URL is not set. Please configure NEXT_PUBLIC_API_BASE_URL.");
-      return;
-    }
-    if (!file) {
-      setError("Please choose an image file first.");
-      return;
-    }
-
-    // Basic client-side safety limits (you can tweak)
-    const maxBytes = 8 * 1024 * 1024; // 8MB
-    if (file.size > maxBytes) {
-      setError("File is too large. Please upload an image under 8MB.");
-      return;
-    }
+    if (!file) return setError("Please choose an image file first.");
 
     setLoading(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("mode", mode);
-      if (mode === "manual") fd.append("k", String(clampK(k)));
-
-      const res = await fetch(`${API_BASE}/extract`, {
-        method: "POST",
-        body: fd,
-        // Don't set Content-Type manually; browser will set proper multipart boundary.
-      });
-
-      if (!res.ok) {
-        // Try to get JSON detail; fallback to text
-        const ct = res.headers.get("content-type") ?? "";
-        let msg = `API error ${res.status}`;
-        if (ct.includes("application/json")) {
-          const j = await res.json().catch(() => null);
-          msg = j?.detail ? `${msg}: ${j.detail}` : msg;
-        } else {
-          const t = await res.text().catch(() => "");
-          if (t) msg = `${msg}: ${t}`;
-        }
-        throw new Error(msg);
-      }
-
-      const json = (await res.json()) as ApiResponse;
+      // 初回は軽量
+      const json = await callExtract(file, mode, clampK(k), false);
       setData(json);
     } catch (e: any) {
       setError(e?.message ?? "Something went wrong.");
@@ -81,6 +57,32 @@ export default function Page() {
       setLoading(false);
     }
   }
+
+    // if (!API_BASE) {
+    //   setError("API base URL is not set. Please configure NEXT_PUBLIC_API_BASE_URL.");
+    //   return;
+    // }
+    // if (!file) {
+    //   setError("Please choose an image file first.");
+    //   return;
+    // }
+
+  async function loadMasks() {
+    if (!file || !data) return;
+
+    setError("");
+    setLoading(true);
+    try {
+      // ★必要な時だけマスク取得（同じ画像を再POST）
+      const json = await callExtract(file, mode, clampK(k), true);
+      setData(json);
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to load masks.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
   function onReset() {
     setFile(null);
@@ -218,12 +220,25 @@ export default function Page() {
         {/* Results */}
         {data ? (
           <section className="mt-8 space-y-4">
-            <h2 className="text-lg font-semibold">Results</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Results</h2>
+              <button
+                type="button"
+                onClick={loadMasks}
+                disabled={loading || data.colours.every(c => c.mask_image)}
+                className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-50 disabled:opacity-50"
+              >
+                {data.colours.every(c => c.mask_image) ? "Masks loaded" : "Show masks"}
+                
+                {/* {loading ? "Loading masks..." : "Load masks"} */}
+              </button>
+            </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {data.colours.map((c, idx) => {
                 const pct = (c.ratio * 100).toFixed(1);
-                const maskSrc = `data:image/png;base64,${c.mask_image}`;
+                const maskSrc = c.mask_image ? `data:image/png;base64,${c.mask_image}` : "";
+                
                 return (
                   <div
                     key={idx}
@@ -233,7 +248,7 @@ export default function Page() {
                       <div
                         className="h-10 w-10 rounded-xl ring-1 ring-zinc-200"
                         style={{ background: c.hex }}
-                        aria-label={`colour swatch ${c.hex}`}
+                        // aria-label={`colour swatch ${c.hex}`}
                       />
                       <div className="min-w-0">
                         <div className="text-sm font-medium tabular-nums">{c.hex}</div>
@@ -242,7 +257,14 @@ export default function Page() {
                     </div>
 
                     <div className="mt-3 overflow-hidden rounded-xl ring-1 ring-zinc-200 bg-zinc-50">
-                      <img src={maskSrc} alt={`mask ${idx}`} className="w-full h-auto" />
+                      {c.mask_image ? (
+                        <img src={maskSrc} alt={`mask ${idx}`} className="w-full h-auto" />
+                      ) : (
+                        <div className="p-3 text-xs text-zinc-500">
+                          Mask not loaded. Click <span className="font-medium">"Show masks"</span>.
+                        </div> 
+                      )}
+                      
                     </div>
                   </div>
                 );
