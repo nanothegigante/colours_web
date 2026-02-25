@@ -71,7 +71,7 @@ export default function HowItWorksPage() {
             </li>
             <li>
               <span className="font-medium">K-Means clustering</span>: assign each pixel to one of k
-              clusters. Each cluster center is treated as a dominant colour.
+              clusters. Each cluster centre is treated as a dominant colour.
             </li>
             <li>
               <span className="font-medium">Ratios</span>: compute the fraction of pixels belonging to
@@ -90,7 +90,7 @@ export default function HowItWorksPage() {
           <h2 className="text-lg font-semibold">What is K-Means?</h2>
           <p className="text-sm text-zinc-700 leading-6">
             K-Means is an algorithm that groups points into k clusters by repeatedly:
-            (1) assigning each point to the nearest cluster center, and (2) updating each center to
+            (1) assigning each point to the nearest cluster centre, and (2) updating each centre to
             the average of its assigned points. Here, each pixel is a point in HSV space.
           </p>
 
@@ -103,18 +103,18 @@ export default function HowItWorksPage() {
         </section>
 
         <section className="mt-8 space-y-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-zinc-200">
-          <h2 className="text-lg font-semibold">Example flow (with images)</h2>
+          <h2 className="text-lg font-semibold">Example flow (using Elbow method)</h2>
 
-          <p className="text-sm text-zinc-700 leading-6">
+          {/* <p className="text-sm text-zinc-700 leading-6">
             You can add screenshots here to illustrate the user flow:
             input image → Auto (Elbow) results → Show masks results.
-          </p>
+          </p> */}
 
           <div className="grid gap-4 md:grid-cols-3">
             <figure className="rounded-2xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
               <div className="text-xs font-medium text-zinc-600 mb-2">A) Input image</div>
               <Image
-                src="/docs/example-input.jpg"
+                src="/docs/example-input.jpeg"
                 alt="Example input"
                 width={800}
                 height={1000}
@@ -128,7 +128,7 @@ export default function HowItWorksPage() {
             <figure className="rounded-2xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
               <div className="text-xs font-medium text-zinc-600 mb-2">B) Auto (Elbow) result</div>
               <Image
-                src="/docs/example-auto-result.png"
+                src="/docs/example-auto-result.jpeg"
                 alt="Example auto result"
                 width={800}
                 height={1000}
@@ -142,7 +142,7 @@ export default function HowItWorksPage() {
             <figure className="rounded-2xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
               <div className="text-xs font-medium text-zinc-600 mb-2">C) Show masks result</div>
               <Image
-                src="/docs/example-masks.png"
+                src="/docs/example-masks.jpeg"
                 alt="Example masks result"
                 width={800}
                 height={1000}
@@ -156,16 +156,16 @@ export default function HowItWorksPage() {
 
           <div className="rounded-xl bg-amber-50 p-4 ring-1 ring-amber-100">
             <p className="text-sm text-amber-900 leading-6">
-              Note: The example images above are placeholders. Put your screenshots into{" "}
-              <span className="font-mono">/public/docs/</span> with the same filenames, or change the{" "}
-              <span className="font-mono">src</span> paths to match your files.
+              Note: Sometimes it takes a few minutes to process large images.
             </p>
           </div>
         </section>
 
+
         <footer className="mt-12 text-xs text-zinc-500">
           <p>
-            Tip: If you publish globally, consider rate limiting and a clear privacy policy page.
+            copyrights &copy; 2026. built by <a href="https://nanothegigante.com">nano the gigante</a>.
+            {/* Tip: If you publish globally, consider rate limiting and a clear privacy policy page. */}
           </p>
         </footer>
       </div>

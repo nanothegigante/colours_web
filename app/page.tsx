@@ -284,7 +284,7 @@ export default function Page() {
 
         <footer className="mt-12 text-xs text-zinc-500">
           <p>
-            copyrights &copy; 2026. Built by <a href="https://nanothegigante.com">nano the gigante</a>
+            copyrights &copy; 2026. built by <a href="https://nanothegigante.com">nano the gigante</a>
           </p>
         </footer>
       </div>
