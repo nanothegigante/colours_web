@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 
 type Mode = "auto" | "manual";
 type ColourItem = { id: number; hex: string; ratio: number; mask_image?: string };
@@ -93,11 +94,19 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-900">
       <div className="mx-auto max-w-4xl px-6 py-10">
-        <header className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight">Dominant Colours</h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            Upload an image and extract dominant colours (hex, ratio, and partition masks).
-          </p>
+        <header className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Dominant Colours</h1>
+            <p className="mt-2 text-sm text-zinc-600">
+              Upload an image and extract dominant colours (hex, ratio, and partition masks).
+            </p>
+          </div>
+          <Link
+            href="/how-it-works"
+            className="rounded-xl bg-white px-3 py-2 text-sm font-medium text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-50"
+          >
+            How it works
+          </Link>  
         </header>
 
         <section className="rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200 p-6">
