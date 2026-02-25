@@ -275,7 +275,7 @@ export default function Page() {
 
         <footer className="mt-12 text-xs text-zinc-500">
           <p>
-            Tip: If you plan to publish globally, consider limiting file size and rate limiting on the API.
+            copyrights &copy; 2026. Built by <a href="https://nanothegigante.com">nano the gigante</a>
           </p>
         </footer>
       </div>
