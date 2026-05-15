@@ -125,7 +125,7 @@ npm run lint
 ```
 Runs ESLint.
 
----
+
 ## Project structure
 
 ```
@@ -159,6 +159,5 @@ Images uploaded by users are sent to the extraction API only for the purpose of 
 
 The app also does not provide user accounts or persistent image management. Once the colour extraction process is complete, the uploaded image data is not stored by this application.
 
-### Author
-Built by [nano the gigante](nanothegigante.com)↗︎.
+
 
